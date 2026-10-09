@@ -31,7 +31,7 @@ void main() {
     );
     expect(
       stageIntroductions.values.map((intro) => intro.goal).toSet(),
-      hasLength(19),
+      hasLength(52),
     );
     for (final lesson in allLessons) {
       final intro = stageIntroductions[lesson.id]!;
@@ -190,7 +190,7 @@ void main() {
       expect(restored.solved, {'operations:0'});
       expect(restored.tutor, 'karane');
       expect(restored.name, 'Luna');
-      expect(restored.fraction, closeTo(1 / 380, .0001));
+      expect(restored.fraction, closeTo(1 / 1130, .0001));
       expect(restored.seasonFraction(seasons.first), closeTo(1 / 140, .0001));
       await restored.reset();
       final reset = await AcademyProgress.load();
@@ -223,10 +223,13 @@ void main() {
   test('All curriculum exercises have feedback for every incorrect option', () {
     expect(algebraLessons, hasLength(7));
     for (final lesson in allLessons) {
-      expect(lesson.exercises, hasLength(20), reason: lesson.id);
+      final count = [5, 6, 7].contains(seasonForLesson(lesson).number)
+          ? 50
+          : 20;
+      expect(lesson.exercises, hasLength(count), reason: lesson.id);
       expect(
         lesson.exercises.map((e) => e.question).toSet(),
-        hasLength(20),
+        hasLength(count),
         reason: lesson.id,
       );
       expect(lesson.steps, isNotEmpty);
@@ -246,8 +249,17 @@ void main() {
         }
       }
     }
-    expect(seasons.where((s) => s.available).map((s) => s.number), [1, 2, 4]);
-    expect(allLessons.map((l) => l.id).toSet(), hasLength(19));
+    expect(seasons.where((s) => s.available).map((s) => s.number), [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+    ]);
+    expect(allLessons.map((l) => l.id).toSet(), hasLength(52));
     expect(geometryLessons, hasLength(6));
     expect(trigonometryLessons, hasLength(6));
   });
@@ -260,7 +272,7 @@ void main() {
       await progress.solve(geometryLessons.first, i);
     }
     await progress.solve(trigonometryLessons.last, 1);
-    await progress.setSeason(3);
+    await progress.setSeason(999);
     final restored = await AcademyProgress.load();
     expect(restored.selectedSeason, 2);
     expect(restored.nextLesson, geometryLessons[1]);
@@ -268,7 +280,7 @@ void main() {
       restored.solved,
       containsAll(['operations:0', 'geo_angles:0', 'trig_applications:1']),
     );
-    expect(restored.total, 380);
+    expect(restored.total, 1130);
     expect(restored.seasonCompleted(seasons[0]), 1);
     expect(restored.seasonCompleted(seasons[1]), 20);
     expect(restored.seasonCompleted(seasons[3]), 1);
@@ -279,7 +291,10 @@ void main() {
     );
     for (final season in seasons.where((s) => s.available)) {
       expect(followingLesson(season.lessons.last), isNull);
-      expect(followingLesson(season.lessons.first), season.lessons[1]);
+      expect(
+        followingLesson(season.lessons.first),
+        season.lessons.length > 1 ? season.lessons[1] : null,
+      );
     }
   });
 

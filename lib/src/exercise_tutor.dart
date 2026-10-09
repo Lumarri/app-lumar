@@ -21,6 +21,8 @@ class ExerciseTutor extends StatelessWidget {
     this.showingHint = false,
     this.feedbackTitle,
     this.explanation,
+    this.imageOverride,
+    this.expressionOverride,
   });
   final TutorProfile tutor;
   final ExerciseReaction reaction;
@@ -29,10 +31,13 @@ class ExerciseTutor extends StatelessWidget {
   final VoidCallback? onHint;
   final bool showingHint;
   final String? feedbackTitle, explanation;
+  final String? imageOverride, expressionOverride;
   @override
   Widget build(BuildContext context) {
-    final image = tutorReactions[tutor.id]!.image(reaction, variant);
-    final expression = reactionExpression(tutor.id, reaction);
+    final image =
+        imageOverride ?? tutorReactions[tutor.id]!.image(reaction, variant);
+    final expression =
+        expressionOverride ?? reactionExpression(tutor.id, reaction);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

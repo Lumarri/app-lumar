@@ -11,6 +11,9 @@ import 'package:lumar_academy/src/progress.dart';
 import 'package:lumar_academy/src/curriculum.dart';
 import 'package:lumar_academy/src/tutors.dart';
 import 'package:lumar_academy/src/widgets/math_diagram.dart';
+import 'package:lumar_academy/src/exercise_tutor.dart';
+import 'package:lumar_academy/src/tutor_farewell.dart';
+import 'package:lumar_academy/src/widgets/advanced_study.dart';
 
 Future<void> capture(WidgetTester tester, GlobalKey key, String name) async {
   final images = tester
@@ -162,6 +165,125 @@ void main() {
       );
       await tester.pumpAndSettle();
       await capture(tester, key, '${entry.key}_exercise');
+      navigator.pop();
+      await tester.pumpAndSettle();
+    }
+    final navigator = tester.state<NavigatorState>(
+      find.byType(Navigator).first,
+    );
+    await progress.reset();
+    await progress.setTutor('hakari');
+    await progress.setSeason(5);
+    await tester.tap(find.text('Lecciones').last);
+    await tester.pumpAndSettle();
+    await capture(tester, key, 'logarithms_journey');
+    for (var i = 0; i < 9; i++) {
+      await progress.solve(logarithmsLessons.single, i);
+    }
+    navigator.push(
+      MaterialPageRoute<void>(
+        builder: (_) => PracticeScreen(
+          lesson: logarithmsLessons.single,
+          progress: progress,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byType(ExerciseTutor));
+    await capture(tester, key, 'hahari_tenth');
+    navigator.pop();
+    await tester.pumpAndSettle();
+    await progress.reset();
+    navigator.push(
+      MaterialPageRoute<void>(
+        builder: (_) => PracticeScreen(
+          lesson: advancedPowersLessons.single,
+          progress: progress,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tap(tester, 'Ver solución paso a paso');
+    await capture(tester, key, 'powers_worked_solution');
+    navigator.pop();
+    await tester.pumpAndSettle();
+    for (final entry in {
+      'precalculus': precalculusLessons.first,
+      'linear_algebra': linearAlgebraLessons.firstWhere(
+        (l) => l.id == 'lin_matrices',
+      ),
+      'vectors': linearAlgebraLessons.first,
+      'linear_inverse': linearAlgebraLessons.firstWhere(
+        (l) => l.id == 'lin_inverse',
+      ),
+      'eigenvalues': linearAlgebraLessons.firstWhere(
+        (l) => l.id == 'lin_eigen',
+      ),
+    }.entries) {
+      await progress.reset();
+      await progress.setTutor(
+        entry.key == 'linear_inverse'
+            ? 'karane'
+            : entry.key == 'eigenvalues'
+            ? 'yuno'
+            : 'kurisu',
+      );
+      await progress.setSeason(seasonForLesson(entry.value).number);
+      await capture(tester, key, '${entry.key}_journey');
+      navigator.push(
+        MaterialPageRoute<void>(
+          builder: (_) => LessonScreen(lesson: entry.value, progress: progress),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byType(StudyGuidePanel));
+      await capture(tester, key, '${entry.key}_study_kit');
+      navigator.pop();
+      await tester.pumpAndSettle();
+      if (entry.key == 'linear_algebra') {
+        for (var i = 0; i < 12; i++) {
+          await progress.solve(entry.value, i);
+        }
+      }
+      navigator.push(
+        MaterialPageRoute<void>(
+          builder: (_) =>
+              PracticeScreen(lesson: entry.value, progress: progress),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byType(StudyVisualView));
+      await capture(tester, key, '${entry.key}_visual');
+      if (entry.key == 'precalculus') {
+        await tap(tester, 'Tabla');
+        await capture(tester, key, 'precalculus_table');
+      }
+      await tester.ensureVisible(find.byType(ExerciseTutor));
+      await capture(tester, key, '${entry.key}_dialogue');
+      navigator.pop();
+      await tester.pumpAndSettle();
+    }
+    for (final tutor in tutors) {
+      await progress.reset();
+      await progress.setTutor(tutor.id);
+      for (var i = 0; i < 49; i++) {
+        await progress.solve(quadraticsLessons.single, i);
+      }
+      navigator.push(
+        MaterialPageRoute<void>(
+          builder: (_) => PracticeScreen(
+            lesson: quadraticsLessons.single,
+            progress: progress,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final e = quadraticsLessons.single.exercises.last;
+      await tap(tester, e.options[e.correct]);
+      await tap(tester, 'Comprobar respuesta');
+      await tap(tester, 'Terminar práctica');
+      await tester.ensureVisible(find.byType(TutorFarewell));
+      await capture(tester, key, 'farewell_${tutor.id}');
       navigator.pop();
       await tester.pumpAndSettle();
     }

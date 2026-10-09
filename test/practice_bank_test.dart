@@ -222,12 +222,12 @@ void main() {
       }
       final restored = await AcademyProgress.load();
       expect(restored.solved, progress.solved);
-      expect(restored.solved, hasLength(22));
+      expect(restored.solved, hasLength(55));
       expect(
         restored.solved,
         containsAll(['operations:0', 'geo_angles:2', 'trig_ratios:1']),
       );
-      expect(restored.total, 380);
+      expect(restored.total, 1130);
       expect(restored.mastered(algebraLessons.first), isFalse);
     },
   );

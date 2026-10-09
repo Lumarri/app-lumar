@@ -12,6 +12,14 @@ const lavender = Color(0xFFF1E7FC);
 
 // Source dimensions and face crops; display-only framing keeps original files.
 const _faceCrops = <String, (Size, Rect)>{
+  'assets/tutors/hakari/club_portrait.jpg': (
+    Size(447, 447),
+    Rect.fromLTWH(75, 20, 280, 280),
+  ),
+  'assets/tutors/kotoko/club_portrait.jpg': (
+    Size(554, 554),
+    Rect.fromLTWH(90, 55, 410, 410),
+  ),
   'assets/tutors/Gemini_Generated_Image_o69cjso69cjso69c.jpg': (
     Size(1856, 2276),
     Rect.fromLTWH(480, 170, 900, 1050),
@@ -167,13 +175,24 @@ class TutorArtwork extends StatelessWidget {
     required this.tutor,
     this.mood = TutorMood.neutral,
     this.full = false,
+    this.assetOverride,
   });
   final TutorProfile tutor;
   final TutorMood mood;
   final bool full;
+  final String? assetOverride;
   @override
   Widget build(BuildContext context) {
-    final asset = full ? tutor.body ?? tutor.portrait : tutor.imageFor(mood);
+    final asset =
+        assetOverride ??
+        (full ? tutor.body ?? tutor.portrait : tutor.imageFor(mood));
+    if (asset == 'assets/tutors/kurisu/club_portrait.jpg') {
+      return _framed(
+        asset,
+        const Size(447, 447),
+        const Rect.fromLTWH(140, 15, 250, 250),
+      );
+    }
     final faceCrop = _faceCrops[asset];
     if (!full && faceCrop != null) {
       return _framed(asset, faceCrop.$1, faceCrop.$2);
@@ -257,8 +276,10 @@ class TutorPortrait extends StatelessWidget {
     required this.name,
     this.size = 80,
     this.mood = TutorMood.neutral,
+    this.asset,
   });
   final String name;
+  final String? asset;
   final double size;
   final TutorMood mood;
   @override
@@ -284,7 +305,7 @@ class TutorPortrait extends StatelessWidget {
         ),
         padding: const EdgeInsets.all(3),
         child: ClipOval(
-          child: TutorArtwork(tutor: tutor, mood: mood),
+          child: TutorArtwork(tutor: tutor, mood: mood, assetOverride: asset),
         ),
       ),
     );

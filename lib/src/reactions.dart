@@ -58,6 +58,34 @@ String reactionExpression(String id, ExerciseReaction reaction) {
 }
 
 const tutorReactions = <String, TutorReactions>{
+  'hahari': TutorReactions(
+    idleLine: '[Sonríe] Hakari dice que estoy esperando demasiado. Puedes pensar con calma; la pista sigue aquí.',
+    streakLine:
+        '[Aplaude] ¡{racha} seguidos! Rentarou celebraría cada acierto. ♡',
+    images: {
+      ExerciseReaction.observing: [
+        '$_root/hakari/hahari cuando fallaste su problema (exclusivo).png',
+      ],
+      ExerciseReaction.hint: [
+        '$_root/hakari/hahari cuando fallaste su problema (exclusivo).png',
+      ],
+      ExerciseReaction.wrong: [
+        '$_root/hakari/hahari cuando fallaste su problema (exclusivo).png',
+      ],
+      ExerciseReaction.repeatedError: [
+        '$_root/hakari/hahari cuando fallaste su problema (exclusivo).png',
+      ],
+      ExerciseReaction.correct: [
+        '$_root/hakari/hahari cuando fallaste su problema (exclusivo).png',
+      ],
+      ExerciseReaction.streak: [
+        '$_root/hakari/hahari hanazono felicitandote cuando hagas 10 problemas sin fallar.png',
+      ],
+      ExerciseReaction.idle: [
+        '$_root/hakari/hahari cuando fallaste su problema (exclusivo).png',
+      ],
+    },
+  ),
   'kurisu': TutorReactions(
     streakAt: 5,
     idleLine: 'Estoy al otro lado de esta pantalla, esperando tu hipótesis… Tómate tu tiempo; la pista sigue aquí.',
@@ -161,7 +189,7 @@ const tutorReactions = <String, TutorReactions>{
     streakLine: '¡{racha} seguidos! Vale, eso estuvo genial… Sí, te estoy felicitando. ¡Sigue así!',
     images: {
       ExerciseReaction.observing: [
-        '$_root/karane/lo_hiciste_bien_2.png',
+        '$_root/karane/lo_hiciste_bien.png',
         '$_root/karane/no_quiere_que_le_hables_hasta_que_resuelvas_el_problema.png',
       ],
       ExerciseReaction.hint: [

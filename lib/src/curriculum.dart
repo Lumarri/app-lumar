@@ -1,4 +1,8 @@
 import 'practice_bank.dart';
+import 'advanced_curriculum.dart';
+export 'advanced_curriculum.dart';
+import 'extended_curriculum.dart';
+export 'extended_curriculum.dart';
 import 'geometry_curriculum.dart';
 import 'trigonometry_curriculum.dart';
 
@@ -21,12 +25,41 @@ const seasons = [
     'Figuras, medidas y nuevas perspectivas.',
     geometryLessons,
   ),
-  Season(3, 'Precálculo', 'Funciones para ir un paso más allá.', []),
+  Season(
+    3,
+    'Precálculo',
+    'De funciones y modelos a límites introductorios.',
+    precalculusLessons,
+  ),
   Season(
     4,
     'Trigonometría',
     'Ángulos, triángulos y conexiones.',
     trigonometryLessons,
+  ),
+  Season(
+    5,
+    'Logaritmos',
+    'Definición, reglas, ecuaciones y dominio.',
+    logarithmsLessons,
+  ),
+  Season(
+    6,
+    'Potencias',
+    'Exponentes, recíprocos y raíces paso a paso.',
+    advancedPowersLessons,
+  ),
+  Season(
+    7,
+    'Segundo grado',
+    'Factorización, fórmula general y aplicaciones.',
+    quadraticsLessons,
+  ),
+  Season(
+    8,
+    'Álgebra lineal',
+    'Vectores, sistemas, espacios y autovalores.',
+    linearAlgebraLessons,
   ),
 ];
 

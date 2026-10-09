@@ -27,9 +27,11 @@ class TutorProfile {
     this.accent = const Color(0xFFDA70AE),
     this.face = Alignment.topCenter,
     this.body,
+    this.clubPortrait,
   });
   final String id, name, origin, traits, introduction, portrait;
   final String? thinkingPortrait, happyPortrait, surprisedPortrait, body;
+  final String? clubPortrait;
   final Color accent;
   final Alignment face;
   final Map<TutorMoment, String> lines;
@@ -50,6 +52,7 @@ const tutors = [
     traits: 'Analítica · ingeniosa · tsundere',
     introduction: 'Una buena hipótesis merece una comprobación. Te ayudaré a razonar… no te acostumbres a que te dé todas las respuestas.',
     portrait: 'assets/tutors/Gemini_Generated_Image_o69cjso69cjso69c.jpg',
+    clubPortrait: 'assets/tutors/kurisu/club_portrait.jpg',
     thinkingPortrait:
         'assets/tutors/Gemini_Generated_Image_3bicx63bicx63bic.jpg',
     happyPortrait: 'assets/tutors/Gemini_Generated_Image_zbr9mvzbr9mvzbr9.jpg',
@@ -92,6 +95,7 @@ const tutors = [
     traits: 'Alegre · sociable · buena estudiante',
     introduction: '¡Nada de rendirse ante una x! La dividimos en pasos y celebramos lo que descubras.',
     portrait: 'assets/tutors/ddd.jpg',
+    clubPortrait: 'assets/tutors/kotoko/club_portrait.jpg',
     body: 'assets/tutors/kotoko/presentacion de kotoko en la interfaz del menu.png',
     thinkingPortrait:
         'assets/tutors/Gemini_Generated_Image_lcj8kslcj8kslcj8.jpg',
@@ -116,6 +120,7 @@ const tutors = [
     traits: 'Dulce · astuta · considerada',
     introduction: 'Tengo una pequeña estrategia para esta x: dividir el problema en pasos. ¿La probamos juntos?',
     portrait: 'assets/tutors/dfd.jpg',
+    clubPortrait: 'assets/tutors/hakari/club_portrait.jpg',
     thinkingPortrait: 'assets/tutors/dfd.jpg',
     happyPortrait: 'assets/tutors/dfd.jpg',
     body: 'assets/tutors/hakari/te_explica.png',
@@ -142,7 +147,7 @@ const tutors = [
     thinkingPortrait:
         'assets/tutors/Gemini_Generated_Image_nlf4d8nlf4d8nlf4.jpg',
     happyPortrait: 'assets/tutors/Gemini_Generated_Image_nlf4d8nlf4d8nlf4.jpg',
-    body: 'assets/tutors/karane/lo_hiciste_bien_2.png',
+    body: 'assets/tutors/karane/lo_hiciste_bien.png',
     face: Alignment(-1, -1),
     accent: Color(0xFF68865D),
     lines: {

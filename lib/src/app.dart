@@ -4,8 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'curriculum.dart';
+import 'advanced_dialogues.dart';
+import 'widgets/advanced_study.dart';
 import 'widgets/math_diagram.dart';
 import 'exercise_tutor.dart';
+import 'pose_catalog.dart';
+import 'tutor_farewell.dart';
 import 'lesson_introduction.dart';
 import 'music.dart';
 import 'progress.dart';
@@ -324,7 +328,11 @@ class _AcademyShellState extends State<AcademyShell> {
                   onTap: () => progress.setTutor(tutors[i].id),
                   child: Stack(
                     children: [
-                      TutorPortrait(name: tutors[i].id, size: 76),
+                      TutorPortrait(
+                        name: tutors[i].id,
+                        size: 76,
+                        asset: tutors[i].clubPortrait,
+                      ),
                       if (tutors[i].id == progress.tutor)
                         const Positioned(
                           right: 0,
@@ -424,7 +432,7 @@ class _AcademyShellState extends State<AcademyShell> {
       ),
       const SizedBox(height: 8),
       Text(
-        '${progress.activeSeason.lessons.length} pequeñas aventuras. Explora, repasa y avanza a tu ritmo.',
+        '${progress.activeSeason.lessons.length == 1 ? 'Una nueva aventura' : '${progress.activeSeason.lessons.length} pequeñas aventuras'}. Explora, repasa y avanza a tu ritmo.',
         style: TextStyle(color: muted),
       ),
       const SizedBox(height: 22),
@@ -463,7 +471,7 @@ class _AcademyShellState extends State<AcademyShell> {
             ),
             const SizedBox(height: 10),
             Text(
-              '${progress.seasonCompleted(progress.activeSeason)} de ${progress.seasonTotal(progress.activeSeason)} ejercicios · ${progress.activeSeason.lessons.length} unidades',
+              '${progress.seasonCompleted(progress.activeSeason)} de ${progress.seasonTotal(progress.activeSeason)} ejercicios · ${progress.activeSeason.lessons.length} ${progress.activeSeason.lessons.length == 1 ? 'unidad' : 'unidades'}',
               style: const TextStyle(color: muted, fontSize: 12),
             ),
           ],
@@ -588,9 +596,10 @@ class _AcademyShellState extends State<AcademyShell> {
         message: tutor.say(TutorMoment.practice),
         mood: TutorMood.thinking,
       ),
-      const SectionTitle(
+      SectionTitle(
         'Elige tu desafío',
-        caption: '20 ejercicios por unidad · con explicación',
+        caption:
+            '${progress.activeSeason.lessons.first.exercises.length} ejercicios por unidad · con explicación',
       ),
       for (final lesson in progress.activeSeason.lessons)
         Padding(
@@ -688,6 +697,10 @@ class _LessonScreenState extends State<LessonScreen> {
               ),
             ),
             const SectionTitle('La idea clave'),
+            if (lesson.guide != null) ...[
+              StudyGuidePanel(lesson: lesson),
+              const SizedBox(height: 16),
+            ],
             Panel(
               child: Text(
                 lesson.theory,
@@ -700,6 +713,11 @@ class _LessonScreenState extends State<LessonScreen> {
             ),
             if (MathDiagram.descriptions.containsKey(lesson.id)) ...[
               MathDiagram(lesson: lesson),
+              const SizedBox(height: 16),
+            ],
+            if (lesson.guide != null &&
+                lesson.exercises.first.visual != null) ...[
+              StudyVisualView(visual: lesson.exercises.first.visual!),
               const SizedBox(height: 16),
             ],
             Panel(
@@ -810,6 +828,8 @@ class _PracticeScreenState extends State<PracticeScreen>
   bool checked = false, hint = false, finished = false;
   bool idle = false;
   int mistakes = 0, hintVisits = 0;
+  final _questionClock = Stopwatch();
+  bool quickCorrect = false, usedHint = false;
   Timer? _idleTimer;
   final _tutorKey = GlobalKey();
   final _questionKey = GlobalKey();
@@ -818,6 +838,7 @@ class _PracticeScreenState extends State<PracticeScreen>
   @override
   void initState() {
     super.initState();
+    _questionClock.start();
     WidgetsBinding.instance.addObserver(this);
     queue = List.generate(widget.lesson.exercises.length, (i) => i)
         .where(
@@ -867,8 +888,10 @@ class _PracticeScreenState extends State<PracticeScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
+      if (!correct && !finished) _questionClock.start();
       _armIdle();
     } else {
+      _questionClock.stop();
       _idleTimer?.cancel();
     }
   }
@@ -885,6 +908,11 @@ class _PracticeScreenState extends State<PracticeScreen>
     final answerCorrect =
         selected == widget.lesson.exercises[queue[position]].correct;
     setState(() {
+      quickCorrect =
+          answerCorrect &&
+          mistakes == 0 &&
+          !usedHint &&
+          _questionClock.elapsed < const Duration(seconds: 30);
       checked = true;
       hint = false;
       idle = false;
@@ -892,6 +920,7 @@ class _PracticeScreenState extends State<PracticeScreen>
     });
     widget.progress.recordPracticeAnswer(answerCorrect);
     if (answerCorrect) {
+      _questionClock.stop();
       widget.progress.solve(widget.lesson, queue[position]);
     }
     _armIdle();
@@ -910,6 +939,11 @@ class _PracticeScreenState extends State<PracticeScreen>
         idle = false;
         mistakes = 0;
         hintVisits = 0;
+        quickCorrect = false;
+        usedHint = false;
+        _questionClock
+          ..reset()
+          ..start();
       }
     });
     _armIdle();
@@ -937,6 +971,53 @@ class _PracticeScreenState extends State<PracticeScreen>
                 ? ExerciseReaction.repeatedError
                 : ExerciseReaction.wrong
           : ExerciseReaction.observing;
+      final variant =
+          allLessons.indexOf(widget.lesson) * 3 +
+          queue[position] +
+          (reaction == ExerciseReaction.hint ? hintVisits - 1 : mistakes);
+      final guest = hahariAppears(
+        queue[position],
+        correct,
+        widget.progress.streak,
+        tutorId: tutor.id,
+      );
+      final pose = guest
+          ? null
+          : choosePose(
+              tutor.id,
+              reaction,
+              variant,
+              exerciseIndex: queue[position],
+              mistakes: mistakes,
+              streak: widget.progress.streak,
+              quick: quickCorrect,
+            );
+      final dialogue = guest
+          ? [
+              hahariDialogue(
+                reaction,
+                variant,
+                queue[position],
+                widget.progress.streak,
+              ),
+              advancedGuestDialogue(widget.lesson, exercise, reaction),
+            ].join('\n\n')
+          : [
+              reactionLine(
+                tutor,
+                reaction,
+                streak: widget.progress.streak,
+                variant: variant,
+              ),
+              if (pose != null) pose.lines[variant % pose.lines.length],
+              advancedCourseDialogue(
+                tutor,
+                widget.lesson,
+                exercise,
+                reaction,
+                variant,
+              ),
+            ].join('\n\n');
       return Scaffold(
         appBar: AppBar(
           title: const Text('Práctica'),
@@ -953,12 +1034,14 @@ class _PracticeScreenState extends State<PracticeScreen>
               children: finished
                   ? [
                       const SizedBox(height: 24),
-                      Center(
-                        child: TutorPortrait(
-                          name: tutor.id,
-                          size: 125,
-                          mood: TutorMood.happy,
-                        ),
+                      TutorFarewell(
+                        tutor: tutor,
+                        lesson: widget.lesson,
+                        courseComplete:
+                            widget.progress.seasonFraction(
+                              seasonForLesson(widget.lesson),
+                            ) ==
+                            1,
                       ),
                       const SizedBox(height: 22),
                       Text(
@@ -989,7 +1072,7 @@ class _PracticeScreenState extends State<PracticeScreen>
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              '${queue.length} ejercicios practicados',
+                              '${queue.length} ${queue.length == 1 ? 'ejercicio practicado' : 'ejercicios practicados'}',
                               style: const TextStyle(
                                 fontWeight: FontWeight.w700,
                               ),
@@ -1069,6 +1152,13 @@ class _PracticeScreenState extends State<PracticeScreen>
                         ],
                       ),
                       const SizedBox(height: 25),
+                      if (exercise.difficulty > 0) ...[
+                        ExerciseLevelBar(
+                          exercise: exercise,
+                          index: queue[position],
+                        ),
+                        const SizedBox(height: 16),
+                      ],
                       Panel(
                         key: _questionKey,
                         child: Text(
@@ -1082,25 +1172,35 @@ class _PracticeScreenState extends State<PracticeScreen>
                         ),
                       ),
                       const SizedBox(height: 16),
+                      if (exercise.visual != null) ...[
+                        StudyVisualView(
+                          key: ValueKey('visual:${queue[position]}'),
+                          visual: exercise.visual!,
+                          onExplore: () => usedHint = true,
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                      if (widget.lesson.guide != null)
+                        FormulaReminder(
+                          guide: widget.lesson.guide!,
+                          onOpen: () => usedHint = true,
+                        ),
                       ExerciseTutor(
                         key: _tutorKey,
-                        tutor: tutor,
+                        tutor: guest ? hahari : tutor,
                         reaction: reaction,
-                        variant:
-                            allLessons.indexOf(widget.lesson) * 3 +
-                            queue[position] +
-                            (reaction == ExerciseReaction.hint
-                                ? hintVisits - 1
-                                : mistakes),
-                        message: reactionLine(
-                          tutor,
-                          reaction,
-                          streak: widget.progress.streak,
-                          variant:
-                              allLessons.indexOf(widget.lesson) * 3 +
-                              queue[position] +
-                              (hint ? hintVisits - 1 : mistakes),
-                        ),
+                        variant: variant,
+                        imageOverride: guest
+                            ? hahariImage(
+                                queue[position],
+                                correct,
+                                widget.progress.streak,
+                              )
+                            : pose?.asset,
+                        expressionOverride: guest
+                            ? '[Visita sorpresa] La mamá de Hakari se asoma a la pantalla'
+                            : pose?.expression,
+                        message: dialogue,
                         explanation: hint
                             ? exercise.hint
                             : checked
@@ -1121,11 +1221,29 @@ class _PracticeScreenState extends State<PracticeScreen>
                                 setState(() {
                                   hint = !hint;
                                   idle = false;
-                                  if (hint) hintVisits++;
+                                  if (hint) {
+                                    hintVisits++;
+                                    usedHint = true;
+                                  }
                                 });
                                 _armIdle();
                               },
                       ),
+                      if (exercise.steps.isNotEmpty)
+                        ExpansionTile(
+                          key: ValueKey('solution:${queue[position]}'),
+                          title: const Text('Ver solución paso a paso'),
+                          onExpansionChanged: (expanded) {
+                            if (expanded) usedHint = true;
+                          },
+                          children: [
+                            for (var i = 0; i < exercise.steps.length; i++)
+                              ListTile(
+                                leading: Text('${i + 1}'),
+                                title: Text(exercise.steps[i]),
+                              ),
+                          ],
+                        ),
                       const SizedBox(height: 22),
                       for (var i = 0; i < exercise.options.length; i++)
                         Padding(

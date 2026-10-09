@@ -40,4 +40,26 @@ La tutora aparece entre el enunciado y las respuestas, con el botón de pista y 
 
 Los PNG transparentes nuevos sustituyen las poses anteriores en los ejercicios; sus rutas se actualizan explícitamente para respetar los nombres con guiones bajos. Las láminas exclusivas de Karane y Hakari aportan tres iconos circulares que cambian según la reacción. Se encuadran en Flutter sin editar la imagen original. Los personajes principales siguen superpuestos y sin marco.
 
-Las 19 etapas de álgebra, geometría y trigonometría tienen una presentación con objetivo, contexto y criterio de comprobación. El saludo cambia según la personalidad y la etapa. Ajustes permite elegir tutora, regular música y volumen, reducir el movimiento de entrada y desactivar comentarios de espera; todo se guarda localmente.
+Las 52 etapas tienen una presentación con objetivo, contexto y criterio de comprobación. Se añadieron logaritmos, potencias y ecuaciones de segundo grado, con 50 preguntas por curso. El saludo cambia según la personalidad y la etapa. Ajustes permite elegir tutora, regular música y volumen, reducir el movimiento de entrada y desactivar comentarios de espera; todo se guarda localmente.
+
+## Poses adicionales y despedidas
+
+`pose_catalog.dart` organiza 44 poses por su expresión, con dos frases originales para cada una. Los sufijos numéricos de archivos como `explicadonte5.png` o `felicitandote7.png` no determinan el orden ni una condición de aparición. Se conservaron las 280 frases generales y se añadieron comentarios asociados a las poses, veinte despedidas y diálogos de la invitada.
+
+Las condiciones indicadas expresamente se evalúan con el estado de la práctica: Hakari cambia después de tres y siete errores; sus poses de racha se habilitan desde cuatro y veinte aciertos. Kurisu tiene una pose desde ocho aciertos y otra en los ejercicios 10/18 (la invitada tiene prioridad en el 10). Yuno celebra recuperaciones después de errores. Karane puede sorprenderse por una respuesta en menos de 30 segundos sin errores ni ayudas; no hay un cronómetro visible ni penalizaciones por tardar, y el tiempo se pausa al salir de la app.
+
+Las despedidas de etapa y curso usan los PNG aportados para ese propósito; cuando no hay una imagen exclusiva de despedida, se usa una felicitación de la misma tutora. El curso se considera terminado cuando todos sus ejercicios están guardados como resueltos, aunque las etapas se hayan hecho en otro orden.
+
+## Diálogos personalizados de cursos y etapas
+
+Las ocho temporadas incorporan 70 plantillas situacionales en `advanced_dialogues.dart`: dos por tutora y por acción. Se combinan con 260 intervenciones escritas por personaje y etapa en `stage_dialogues.dart`, junto con errores frecuentes y maneras concretas de comprobar lo aprendido. Hay 40 textos propios de curso que se recuperan en introducciones y despedidas.
+
+Por ejemplo, Kurisu comprueba `AA^(-1)=I` como un experimento de laboratorio, Yuno relaciona el orden de `B^(-1)A^(-1)` con deshacer páginas del diario y Karane insiste en ese orden antes de aceptar una inversa. En límites, las tutoras distinguen acercarse al punto de evaluar en él, y Karane recuerda que `0/0` no es cero. Son intervenciones originales de aprendizaje, no citas de sus series.
+
+Los gestos de las frases y las imágenes anteriores permanecen. Los comentarios de etapa describen la idea matemática sin imponer otro gesto que contradiga la pose activa. Las situaciones de pista, error, errores repetidos, acierto, racha y espera mantienen su voz y referencias. Hahari añade comentarios sobre la etapa actual también en cursos básicos y sigue apareciendo solo cuando Hakari es la tutora elegida.
+
+## Hahari, visita sorpresa
+
+Hahari es la madre de Hakari y una figura maternal cariñosa de su grupo, según su [perfil oficial](https://hyakkano.com/character/hahari/). Se adapta como una invitada teatral de estudio con referencias a Hakari, Karane y Rentarou. Sus comentarios son originales.
+
+Visita el ejercicio 10 de cualquier etapa únicamente cuando Hakari es la tutora seleccionada, y puede dar pistas y corregir errores. Se usa la pose de felicitación solo si el acierto mantiene una racha de al menos diez; en el ejercicio 11 aparece su despedida divertida si se mantiene una racha de al menos once. Son rachas consecutivas guardadas por la app, también entre etapas. Retomar el ejercicio 10 muestra la visita aunque sea la primera pregunta pendiente. Después vuelve Hakari, sin cambiar las preferencias. Con las demás tutoras no aparece Hahari.

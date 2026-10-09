@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'curriculum.dart';
+import 'advanced_dialogues.dart';
 import 'tutors.dart';
 import 'widgets.dart';
 import 'widgets/tutor_overlay.dart';
@@ -10,7 +11,28 @@ class StageIntroduction {
   final String goal, context, checkpoint;
 }
 
-const stageIntroductions = {
+final stageIntroductions = {
+  for (final lesson in [...precalculusLessons, ...linearAlgebraLessons])
+    lesson.id: StageIntroduction(
+      '${lesson.title}: ${lesson.guide!.objectives.join(', ').toLowerCase()}.',
+      lesson.theory,
+      'Resolverás 20 retos en cinco niveles: guiado, aplicación, conexión, razonamiento y desafío.',
+    ),
+  'logarithms': StageIntroduction(
+    'Comprender y operar con logaritmos reales.',
+    'Un logaritmo busca un exponente. Repasa las potencias del álgebra y comprueba siempre las condiciones de base y argumento.',
+    'Resolverás 50 retos de evaluación, reglas, ecuaciones y dominio.',
+  ),
+  'advanced_powers': StageIntroduction(
+    'Dominar las reglas de los exponentes.',
+    'Amplía las potencias del álgebra con cocientes, exponentes negativos y raíces de bases positivas.',
+    'Resolverás 50 retos justificando cada regla aplicada.',
+  ),
+  'quadratics': StageIntroduction(
+    'Resolver ecuaciones de segundo grado y comprobar sus raíces.',
+    'Conecta la factorización con las ecuaciones. El discriminante te dirá cuándo hay dos raíces reales, una doble o ninguna real.',
+    'Resolverás 50 retos, incluyendo la fórmula general y problemas de medidas.',
+  ),
   'operations': StageIntroduction(
     'Resolver operaciones en el orden correcto.',
     'Los paréntesis y la prioridad de las operaciones son la base para todo el álgebra. Primero construiremos esa base con números.',
@@ -108,7 +130,10 @@ const stageIntroductions = {
   ),
 };
 
-String stageTutorGreeting(
+String stageTutorGreeting(TutorProfile tutor, Lesson lesson) =>
+    '${_stageTutorGreeting(tutor, lesson)}\n\n${advancedStageGreeting(tutor, lesson)}';
+
+String _stageTutorGreeting(
   TutorProfile tutor,
   Lesson lesson,
 ) => switch (tutor.id) {
